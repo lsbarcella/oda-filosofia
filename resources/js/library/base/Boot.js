@@ -15,6 +15,9 @@ export class Boot extends Phaser.Scene {
         // DICA
         this.load.image('dicaModal', './resources/images/dica/modal.png');
 
+        // DIALOG
+        this.load.image('dialogJu', './resources/images/dialog/Ju.png');
+
         // ELEMENTOS
         this.load.image('elementosBordadoAmigos', './resources/images/elementos/bordado-amigos.png');
         this.load.image('elementosBordadoCultura', './resources/images/elementos/bordado-cultura.png');
@@ -22,6 +25,7 @@ export class Boot extends Phaser.Scene {
         this.load.image('elementosBordadoFamilia', './resources/images/elementos/bordado-familia.png');
         this.load.image('elementosBordadoHistoria', './resources/images/elementos/bordado-historia.png');
         this.load.image('elementosBordadoMusica', './resources/images/elementos/bordado-musica.png');
+        this.load.image('elementosBotaoDica', './resources/images/elementos/botao-dica.png');
         this.load.image('elementosBotaoVoltar', './resources/images/elementos/botao-voltar.png');
         this.load.image('elementosLabelAmigos', './resources/images/elementos/label-amigos.png');
         this.load.image('elementosLabelCultura', './resources/images/elementos/label-cultura.png');

@@ -1,5 +1,7 @@
 import { BaseCena } from '../../js/library/base/BaseCena.js';
 import { Button } from '../../js/library/components/Button.js';
+import { DialogBottomModal } from '../../js/library/components/DialogBottomModal.js';
+import { TipsModal } from '../../js/library/components/TipsModal.js';
 import { ColorManager } from '../../js/library/managers/ColorManager.js';
 
 export class Game extends BaseCena {
@@ -12,30 +14,49 @@ export class Game extends BaseCena {
 
         // Posicoes-base para ajuste fino manual posterior.
         this.dropZoneConfig = {
-            x: 1360,
-            y: 470,
-            width: 560,
-            height: 360
+            x: 630,
+            y: 520,
+            width: 720,
+            height: 780
         };
 
         this.dropSlotOffsets = [
-            { x: -150, y: -70 },
-            { x: 0, y: 0 },
-            { x: 150, y: 70 }
+            { x: 0, y: -150 },
+            { x: -150, y: 130 },
+            { x: 150, y: 130 }
         ];
 
         this.draggableConfigs = [
-            { id: 'amigos', suffix: 'Amigos', x: 270, y: 270 },
-            { id: 'cultura', suffix: 'Cultura', x: 520, y: 270 },
-            { id: 'escola', suffix: 'Escola', x: 770, y: 270 },
-            { id: 'familia', suffix: 'Familia', x: 270, y: 650 },
-            { id: 'historia', suffix: 'Historia', x: 520, y: 650 },
-            { id: 'musica', suffix: 'Musica', x: 770, y: 650 }
+            { id: 'familia', suffix: 'Familia', column: 0, row: 0 },
+            { id: 'amigos', suffix: 'Amigos', column: 1, row: 0 },
+            { id: 'cultura', suffix: 'Cultura', column: 2, row: 0 },
+            { id: 'escola', suffix: 'Escola', column: 0, row: 1 },
+            { id: 'musica', suffix: 'Musica', column: 1, row: 1 },
+            { id: 'historia', suffix: 'Historia', column: 2, row: 1 }
         ];
 
         this.draggableLabelSpacing = 24;
-        this.draggableHitPadding = 40;
-        this.undoButtonPosition = { x: 1680, y: 860 };
+        this.draggableDragInset = 80;
+        this.topActionButtonsLayout = {
+            top: 40,
+            right: 40,
+            gap: 24
+        };
+        this.draggableGridLayout = {
+            columns: [1250, 1480, 1710],
+            topSpacingFromActionButtons: 40,
+            rowGap: 6,
+            liftY: 70
+        };
+        this.dragAreaWidthBonus = 100;
+        this.dragAreaCenterOffsetY = -40;
+        this.showDragDebug = false;
+        this.showDropZoneDebug = false;
+        this.dragDebugStyle = {
+            color: 0x00ff88,
+            alpha: 0.95,
+            lineWidth: 3
+        };
     }
 
     create() {
@@ -43,6 +64,7 @@ export class Game extends BaseCena {
         this.draggables = [];
         this.activePlacements = [];
         this.isSecondBackgroundActive = false;
+        this.isPhaseCompleted = false;
         this.isDropZoneHovering = false;
 
         this.background = this.add.image(0, 0, this.bgKeys[this.currentBgIndex]).setOrigin(0, 0);
@@ -51,7 +73,7 @@ export class Game extends BaseCena {
         const colors = ColorManager.getColors(marca, ColorManager.YELLOW);
 
         this.createAdvanceButton(colors);
-        this.createSecondBackgroundStructure();
+        this.createSecondBackgroundStructure(colors);
         this.bindSecondBackgroundInput();
         this.updateBackgroundAndButton();
 
@@ -68,21 +90,31 @@ export class Game extends BaseCena {
             colors
         });
 
-        this.advanceButton.x = this.background.x + (this.background.displayWidth - this.advanceButton.width) / 2;
-        this.advanceButton.y = this.background.y + this.background.displayHeight - this.advanceButton.height - 88;
+        this.advanceButton.x = 1020;
+        this.advanceButton.y = 640;
         this.advanceButton.on('buttonClick', () => {
             this.goToNextBackground();
         });
     }
 
-    createSecondBackgroundStructure() {
+    createSecondBackgroundStructure(colors) {
         this.createDropZone();
-        this.createUndoButton();
+        this.createSecondBackgroundActionButtons(colors);
+        this.tipsModal = new TipsModal(this);
+        this.dialogBottomModal = new DialogBottomModal(this, {
+            onButtonClick: () => {
+                this.dialogBottomModal.hide();
+
+                const controlador = this.controladorDeCenas || this.game?.controladorDeCenas;
+                controlador?.proximaCena?.();
+            }
+        });
 
         this.draggableConfigs.forEach((config) => {
             this.createDraggableItem(config);
         });
 
+        this.layoutDraggableGrid();
         this.updateSecondBackgroundState();
     }
 
@@ -99,17 +131,76 @@ export class Game extends BaseCena {
         this.drawDropZone();
     }
 
-    createUndoButton() {
+    createSecondBackgroundActionButtons(colors) {
         this.undoButton = this.add.image(
-            this.undoButtonPosition.x,
-            this.undoButtonPosition.y,
+            0,
+            0,
             'elementosBotaoVoltar'
         )
-            .setOrigin(0.5)
+            .setOrigin(0, 0)
             .setDepth(40);
-
         this.undoButton.on('pointerdown', () => {
             this.undoLastPlacement();
+        });
+
+        this.tipButton = this.add.image(
+            0,
+            0,
+            'elementosBotaoDica'
+        )
+            .setOrigin(0, 0)
+            .setDepth(40);
+        this.tipButton.on('pointerdown', () => {
+            this.tipsModal.show();
+        });
+
+        this.phaseAdvanceButton = new Button(this, {
+            text: 'AVAN\u00C7AR',
+            colors
+        });
+        this.phaseAdvanceButton.setDepth(40);
+        this.phaseAdvanceButton.setDisabled(true);
+        this.phaseAdvanceButton.on('buttonClick', () => {
+            this.handlePhaseAdvance();
+        });
+
+        this.layoutSecondBackgroundActionButtons();
+    }
+
+    layoutSecondBackgroundActionButtons() {
+        const { top, right, gap } = this.topActionButtonsLayout;
+        const sceneWidth = this.scale.width;
+
+        this.phaseAdvanceButton.x = sceneWidth - right - this.phaseAdvanceButton.width;
+        this.phaseAdvanceButton.y = top;
+
+        this.tipButton.x = this.phaseAdvanceButton.x - gap - this.tipButton.displayWidth;
+        this.tipButton.y = top;
+
+        this.undoButton.x = this.tipButton.x - gap - this.undoButton.displayWidth;
+        this.undoButton.y = top;
+    }
+
+    layoutDraggableGrid() {
+        const { columns, topSpacingFromActionButtons, rowGap, liftY } = this.draggableGridLayout;
+        const actionButtonsMaxHeight = Math.max(
+            this.undoButton.displayHeight,
+            this.tipButton.displayHeight,
+            this.phaseAdvanceButton.height
+        );
+        const firstRowTop = this.topActionButtonsLayout.top + actionButtonsMaxHeight + topSpacingFromActionButtons - liftY;
+        const firstRowItems = this.draggables.filter((draggable) => draggable.row === 0);
+        const firstRowMaxHeight = Math.max(...firstRowItems.map((draggable) => draggable.totalHeight));
+        const secondRowTop = firstRowTop + firstRowMaxHeight + rowGap;
+
+        this.draggables.forEach((draggable) => {
+            const rowTop = draggable.row === 0 ? firstRowTop : secondRowTop;
+            const x = columns[draggable.column];
+            const y = rowTop + (draggable.totalHeight / 2);
+
+            draggable.startX = x;
+            draggable.startY = y;
+            this.resetDraggablePosition(draggable);
         });
     }
 
@@ -126,12 +217,32 @@ export class Game extends BaseCena {
         roloImage.y = -(totalHeight / 2) + (roloImage.displayHeight / 2);
         labelImage.y = roloImage.y + (roloImage.displayHeight / 2) + this.draggableLabelSpacing;
 
-        const container = this.add.container(config.x, config.y, [roloImage, labelImage]).setDepth(30);
+        const dragAreaWidth = Math.max(32, totalWidth - (this.draggableDragInset * 2) + this.dragAreaWidthBonus);
+        const dragAreaHeight = Math.max(32, totalHeight - (this.draggableDragInset * 2));
+        const containerChildren = [roloImage, labelImage];
+
+        if (this.showDragDebug) {
+            const dragDebugGraphics = this.add.graphics();
+            dragDebugGraphics.lineStyle(
+                this.dragDebugStyle.lineWidth,
+                this.dragDebugStyle.color,
+                this.dragDebugStyle.alpha
+            );
+            dragDebugGraphics.strokeRect(
+                -(dragAreaWidth / 2),
+                this.dragAreaCenterOffsetY - (dragAreaHeight / 2),
+                dragAreaWidth,
+                dragAreaHeight
+            );
+            containerChildren.push(dragDebugGraphics);
+        }
+
+        const container = this.add.container(0, 0, containerChildren).setDepth(30);
         const dragHandle = this.add.zone(
-            config.x,
-            config.y,
-            totalWidth + this.draggableHitPadding,
-            totalHeight + this.draggableHitPadding
+            0,
+            0,
+            dragAreaWidth,
+            dragAreaHeight
         ).setOrigin(0.5);
 
         dragHandle.setInteractive({ cursor: 'grab' });
@@ -140,10 +251,17 @@ export class Game extends BaseCena {
         const draggable = {
             id: config.id,
             suffix: config.suffix,
+            column: config.column,
+            row: config.row,
             container,
             handle: dragHandle,
-            startX: config.x,
-            startY: config.y,
+            totalWidth,
+            totalHeight,
+            dragAreaWidth,
+            dragAreaHeight,
+            dragAreaCenterOffsetY: this.dragAreaCenterOffsetY,
+            startX: 0,
+            startY: 0,
             isUsed: false
         };
 
@@ -168,7 +286,7 @@ export class Game extends BaseCena {
                 return;
             }
 
-            container.setPosition(dragX, dragY);
+            container.setPosition(dragX, dragY - draggable.dragAreaCenterOffsetY);
             dragHandle.setPosition(dragX, dragY);
         });
 
@@ -273,9 +391,28 @@ export class Game extends BaseCena {
         });
 
         this.setDraggableUsed(draggable, true);
-        this.refreshUndoButtonState();
+        this.refreshSecondBackgroundActionButtonsState();
 
         return true;
+    }
+
+    handlePhaseAdvance() {
+        if (this.activePlacements.length !== this.dropSlotOffsets.length) {
+            return;
+        }
+
+        this.isPhaseCompleted = true;
+        this.isDropZoneHovering = false;
+
+        if (this.tipsModal) {
+            this.tipsModal.hide();
+        }
+
+        this.updateSecondBackgroundState();
+
+        if (this.dialogBottomModal) {
+            this.dialogBottomModal.show();
+        }
     }
 
     undoLastPlacement() {
@@ -287,7 +424,7 @@ export class Game extends BaseCena {
         lastPlacement.bordado.destroy();
         this.setDraggableUsed(lastPlacement.draggable, false);
         this.drawDropZone(this.isDropZoneHovering);
-        this.refreshUndoButtonState();
+        this.refreshSecondBackgroundActionButtonsState();
     }
 
     setDraggableUsed(draggable, isUsed) {
@@ -297,7 +434,7 @@ export class Game extends BaseCena {
     }
 
     updateDraggableVisibility(draggable) {
-        const shouldShow = this.isSecondBackgroundActive && !draggable.isUsed;
+        const shouldShow = this.isSecondBackgroundActive && !draggable.isUsed && !this.isPhaseCompleted;
 
         draggable.container.setVisible(shouldShow);
         draggable.handle.setVisible(shouldShow);
@@ -313,31 +450,52 @@ export class Game extends BaseCena {
 
     resetDraggablePosition(draggable) {
         draggable.container.setPosition(draggable.startX, draggable.startY);
-        draggable.handle.setPosition(draggable.startX, draggable.startY);
+        draggable.handle.setPosition(draggable.startX, draggable.startY + draggable.dragAreaCenterOffsetY);
         draggable.handle.acceptedDrop = false;
     }
 
     returnDraggableToStart(draggable) {
         this.tweens.add({
-            targets: [draggable.container, draggable.handle],
+            targets: draggable.container,
             x: draggable.startX,
             y: draggable.startY,
             duration: 220,
             ease: 'Back.easeOut'
         });
+
+        this.tweens.add({
+            targets: draggable.handle,
+            x: draggable.startX,
+            y: draggable.startY + draggable.dragAreaCenterOffsetY,
+            duration: 220,
+            ease: 'Back.easeOut'
+        });
     }
 
-    refreshUndoButtonState() {
-        const isEnabled = this.isSecondBackgroundActive && this.activePlacements.length > 0;
+    refreshSecondBackgroundActionButtonsState() {
+        const showActionButtons = this.isSecondBackgroundActive && !this.isPhaseCompleted;
+        const canUndo = showActionButtons && this.activePlacements.length > 0;
+        const canAdvance = showActionButtons && this.activePlacements.length === this.dropSlotOffsets.length;
 
-        this.undoButton.setVisible(this.isSecondBackgroundActive);
-        this.undoButton.setAlpha(isEnabled ? 1 : 0.5);
+        this.undoButton.setVisible(showActionButtons);
+        this.tipButton.setVisible(showActionButtons);
+        this.phaseAdvanceButton.setVisible(showActionButtons);
 
-        if (isEnabled) {
+        this.undoButton.setAlpha(canUndo ? 1 : 0.5);
+
+        if (canUndo) {
             this.undoButton.setInteractive({ cursor: 'pointer' });
         } else {
             this.undoButton.disableInteractive();
         }
+
+        if (showActionButtons) {
+            this.tipButton.setInteractive({ cursor: 'pointer' });
+        } else {
+            this.tipButton.disableInteractive();
+        }
+
+        this.phaseAdvanceButton.setDisabled(!canAdvance);
     }
 
     getDropSlotPosition(slotIndex) {
@@ -350,6 +508,12 @@ export class Game extends BaseCena {
     }
 
     drawDropZone(isHovering = false) {
+        if (!this.showDropZoneDebug) {
+            this.dropZoneGraphics.clear();
+            this.dropZoneGraphics.setVisible(false);
+            return;
+        }
+
         const { x, y, width, height } = this.dropZoneConfig;
         const borderColor = isHovering ? 0xfbc82c : 0xffffff;
         const fillAlpha = isHovering ? 0.22 : 0.12;
@@ -394,7 +558,7 @@ export class Game extends BaseCena {
         this.isSecondBackgroundActive = this.currentBgIndex === 1;
 
         if (this.dropZoneHandle?.input) {
-            this.dropZoneHandle.input.enabled = this.isSecondBackgroundActive;
+            this.dropZoneHandle.input.enabled = this.isSecondBackgroundActive && !this.isPhaseCompleted;
         }
 
         if (this.dropZoneHandle) {
@@ -413,8 +577,16 @@ export class Game extends BaseCena {
             placement.bordado.setVisible(this.isSecondBackgroundActive);
         });
 
-        if (this.undoButton) {
-            this.refreshUndoButtonState();
+        if (!this.isSecondBackgroundActive && this.tipsModal) {
+            this.tipsModal.hide();
+        }
+
+        if ((!this.isSecondBackgroundActive || !this.isPhaseCompleted) && this.dialogBottomModal) {
+            this.dialogBottomModal.hide();
+        }
+
+        if (this.undoButton && this.tipButton && this.phaseAdvanceButton) {
+            this.refreshSecondBackgroundActionButtonsState();
         }
     }
 }
