@@ -128,7 +128,6 @@ export class FeedbackNegativo {
     show() {
         this.container.setVisible(true);
         this.isVisible = true;
-        SoundManager.play('erro');
     }
 
     hide() {

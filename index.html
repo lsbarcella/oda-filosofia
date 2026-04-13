@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>SAE26_AI43_POR_C07_OA1</title> <!--Mudar o código-->
+    <title>SAE26_AI32_FIL_C11_OA1</title> <!--Mudar o código-->
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <script src="resources/js/library/phaser.min.js"></script>
@@ -51,7 +51,7 @@
             overflow: hidden;
         }
 
-        #SAE26_AI43_POR_C07_OA1 {
+        #SAE26_AI32_FIL_C11_OA1 {
             width: 100vw;
             height: 100vh;
             justify-content: center;
@@ -86,6 +86,8 @@
         import { Capa } from './resources/game/cenas/Capa.js';
         import { Intro } from './resources/game/cenas/Intro.js';
         import { Game } from './resources/game/cenas/Game.js';
+        import { Game2 } from './resources/game/cenas/Game2.js';
+        import { Game3 } from './resources/game/cenas/Game3.js';
         import { ControladorDeCenas } from './resources/js/library/managers/ControladorDeCenas.js';
         import SoundManager from './resources/js/library/managers/SoundManager.js';
 
@@ -96,14 +98,14 @@
             backgroundColor: '#000',
             scale: {
                 mode: Phaser.Scale.FIT,
-                parent: 'SAE26_AI43_POR_C07_OA1', // Mudar o código
+                parent: 'SAE26_AI32_FIL_C11_OA1', // Mudar o código
                 width: 1920,
                 height: 1080,
                 autoCenter: Phaser.Scale.CENTER_BOTH,
                 autoRound: true,
                 expandParent: true
             },
-            scene: [Boot, Preload, Capa, Intro, Game],
+            scene: [Boot, Preload, Capa, Intro, Game, Game2, Game3],
             audio: {
                 disableWebAudio: false
             },
@@ -128,6 +130,8 @@
             { key: 'Capa', scene: new Capa(null) },
             { key: 'Intro', scene: new Intro(null) },
             { key: 'Game', scene: new Game(null) },
+            { key: 'Game2', scene: new Game2(null) },
+            { key: 'Game3', scene: new Game3(null) },
         ];
 
         // Cria o controlador
@@ -183,8 +187,8 @@
 
 </head>
 
-<body id="SAE26_AI43_POR_C07_OA1"> <!--Mudar o código-->
-    <h2 style="display: none;">Descubra o Poder dos Adjetivos!</h2> <!--Colocar o nome do ODA-->
+<body id="SAE26_AI32_FIL_C11_OA1"> <!--Mudar o código-->
+    <h2 style="display: none;">O Mundo em mim, Eu no Mundo</h2> <!--Colocar o nome do ODA-->
     <div id="loading">Carregando...</div> <!-- Loading indicator -->
 </body>
 

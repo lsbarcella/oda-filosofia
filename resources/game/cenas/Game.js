@@ -3,6 +3,7 @@ import { Button } from '../../js/library/components/Button.js';
 import { DialogBottomModal } from '../../js/library/components/DialogBottomModal.js';
 import { TipsModal } from '../../js/library/components/TipsModal.js';
 import { ColorManager } from '../../js/library/managers/ColorManager.js';
+import SoundManager from '../../js/library/managers/SoundManager.js';
 
 export class Game extends BaseCena {
     constructor(controladorDeCenas) {
@@ -60,6 +61,7 @@ export class Game extends BaseCena {
     }
 
     create() {
+        this.syncControllerSceneIndex();
         this.currentBgIndex = 0;
         this.draggables = [];
         this.activePlacements = [];
@@ -140,6 +142,7 @@ export class Game extends BaseCena {
             .setOrigin(0, 0)
             .setDepth(40);
         this.undoButton.on('pointerdown', () => {
+            SoundManager.play('click');
             this.undoLastPlacement();
         });
 
@@ -151,6 +154,7 @@ export class Game extends BaseCena {
             .setOrigin(0, 0)
             .setDepth(40);
         this.tipButton.on('pointerdown', () => {
+            SoundManager.play('click');
             this.tipsModal.show();
         });
 
@@ -390,6 +394,7 @@ export class Game extends BaseCena {
             bordado
         });
 
+        SoundManager.play('click');
         this.setDraggableUsed(draggable, true);
         this.refreshSecondBackgroundActionButtonsState();
 
@@ -411,6 +416,7 @@ export class Game extends BaseCena {
         this.updateSecondBackgroundState();
 
         if (this.dialogBottomModal) {
+            SoundManager.play('acerto');
             this.dialogBottomModal.show();
         }
     }
@@ -587,6 +593,21 @@ export class Game extends BaseCena {
 
         if (this.undoButton && this.tipButton && this.phaseAdvanceButton) {
             this.refreshSecondBackgroundActionButtonsState();
+        }
+    }
+
+    syncControllerSceneIndex() {
+        const controller = this.controladorDeCenas || this.game?.controladorDeCenas;
+        const currentKey = this.sys.settings.key;
+
+        if (!controller?.cenas?.length) {
+            return;
+        }
+
+        const currentIndex = controller.cenas.findIndex((sceneConfig) => sceneConfig.key === currentKey);
+
+        if (currentIndex >= 0) {
+            controller.cenaAtualIndex = currentIndex;
         }
     }
 }

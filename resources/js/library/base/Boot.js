@@ -14,9 +14,12 @@ export class Boot extends Phaser.Scene {
 
         // DICA
         this.load.image('dicaModal', './resources/images/dica/modal.png');
+        this.load.image('dicaModal3', './resources/images/dica/modal3.png');
 
         // DIALOG
         this.load.image('dialogJu', './resources/images/dialog/Ju.png');
+        this.load.image('dialogJuFase31', './resources/images/dialog/ju-fase3-1.png');
+        this.load.image('dialogJuFase32', './resources/images/dialog/ju-fase3-2.png');
 
         // ELEMENTOS
         this.load.image('elementosBordadoAmigos', './resources/images/elementos/bordado-amigos.png');
@@ -54,6 +57,70 @@ export class Boot extends Phaser.Scene {
         // JOGOS
         this.load.image('jogosFase1', './resources/images/jogos/fase-1.png');
         this.load.image('jogosFase1Intro', './resources/images/jogos/fase-1-intro.png');
+        this.load.image('jogosFase2Intro', './resources/images/jogos/fase-2-intro.png');
+        this.load.image('jogosFase2Q1', './resources/images/jogos/fase-2-q1.png');
+        this.load.image('jogosFase2Q2', './resources/images/jogos/fase-2-q2.png');
+        this.load.image('jogosFase2Q3', './resources/images/jogos/fase-2-q3.png');
+        this.load.image('jogosFase2Q1FeedbackAcerto', './resources/images/jogos/fase-2-q1-feedback-acerto.png');
+        this.load.image('jogosFase2Q1FeedbackErro', './resources/images/jogos/fase-2-q1-feedback-erro.png');
+        this.load.image('jogosFase2Q2FeedbackAcerto', './resources/images/jogos/fase-2-q2-feedback-acerto.png');
+        this.load.image('jogosFase2Q2FeedbackErroA', './resources/images/jogos/fase-2-q2-feedback-erro-a.png');
+        this.load.image('jogosFase2Q2FeedbackErroB', './resources/images/jogos/fase-2-q2-feedback-erro-b.png');
+        this.load.image('jogosFase2Q3FeedbackAcerto', './resources/images/jogos/fase-2-q3-feedback-acerto.png');
+        this.load.image('jogosFase2Q3FeedbackErro', './resources/images/jogos/fase-2-q3-feedback-erro.png');
+        this.load.image('jogosFase3Bg', './resources/images/jogos/fase-3-bg.png');
+        this.load.image('jogosFase3Intro', './resources/images/jogos/fase-3-intro.png');
+
+        // PLANTAS
+        this.load.image('plantasGCrescida', './resources/images/plantas/g-crescida.png');
+        this.load.image('plantasGOpaca', './resources/images/plantas/g-opaca.png');
+        this.load.image('plantasMCrescida', './resources/images/plantas/m-crescida.png');
+        this.load.image('plantasMOpaca', './resources/images/plantas/m-opaca.png');
+        this.load.image('plantasPCrescida', './resources/images/plantas/p-crescida.png');
+        this.load.image('plantasPOpaca', './resources/images/plantas/p-opaca.png');
+
+        // QUESTOES
+        this.load.image('questoesBg', './resources/images/questoes/bg.png');
+        this.load.image('questoesBgHover', './resources/images/questoes/bg-hover.png');
+        this.load.image('questoesBgSelected', './resources/images/questoes/bg-selected.png');
+        this.load.image('questoesA1', './resources/images/questoes/A-1.png');
+        this.load.image('questoesA2', './resources/images/questoes/A-2.png');
+        this.load.image('questoesA3', './resources/images/questoes/A-3.png');
+        this.load.image('questoesB1', './resources/images/questoes/B-1.png');
+        this.load.image('questoesB2', './resources/images/questoes/B-2.png');
+        this.load.image('questoesB3', './resources/images/questoes/B-3.png');
+        this.load.image('questoesC1', './resources/images/questoes/C-1.png');
+        this.load.image('questoesC2', './resources/images/questoes/C-2.png');
+        this.load.image('questoesC3', './resources/images/questoes/C-3.png');
+        this.load.image('questoesD1', './resources/images/questoes/D-1.png');
+        this.load.image('questoesD3', './resources/images/questoes/D-3.png');
+
+        // SEMENTES
+        this.load.image('sementesAjudar', './resources/images/sementes/ajudar.png');
+        this.load.image('sementesCriar', './resources/images/sementes/criar.png');
+        this.load.image('sementesCuidar', './resources/images/sementes/cuidar.png');
+        this.load.image('sementesEnsinar', './resources/images/sementes/ensinar.png');
+        this.load.image('sementesRespeitar', './resources/images/sementes/respeitar.png');
+
+        // VASOS
+        this.load.image('vasosAjudarG', './resources/images/vasos/ajudar-g.png');
+        this.load.image('vasosAjudarM', './resources/images/vasos/ajudar-m.png');
+        this.load.image('vasosAjudarP', './resources/images/vasos/ajudar-p.png');
+        this.load.image('vasosCriarG', './resources/images/vasos/criar-g.png');
+        this.load.image('vasosCriarM', './resources/images/vasos/criar-m.png');
+        this.load.image('vasosCriarP', './resources/images/vasos/criar-p.png');
+        this.load.image('vasosCuidarG', './resources/images/vasos/cuidar-g.png');
+        this.load.image('vasosCuidarM', './resources/images/vasos/cuidar-m.png');
+        this.load.image('vasosCuidarP', './resources/images/vasos/cuidar-p.png');
+        this.load.image('vasosDefaultG', './resources/images/vasos/default-g.png');
+        this.load.image('vasosDefaultM', './resources/images/vasos/default-m.png');
+        this.load.image('vasosDefaultP', './resources/images/vasos/default-p.png');
+        this.load.image('vasosEnsinarG', './resources/images/vasos/ensinar-g.png');
+        this.load.image('vasosEnsinarM', './resources/images/vasos/ensinar-m.png');
+        this.load.image('vasosEnsinarP', './resources/images/vasos/ensinar-p.png');
+        this.load.image('vasosRespeitarG', './resources/images/vasos/respeitar-g.png');
+        this.load.image('vasosRespeitarM', './resources/images/vasos/respeitar-m.png');
+        this.load.image('vasosRespeitarP', './resources/images/vasos/respeitar-p.png');
         
 
         this.load.image('btSoundOn', './resources/images/hud/btSonsNormal.png'); // BotÃ£o de som ligado

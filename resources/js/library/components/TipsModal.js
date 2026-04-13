@@ -1,12 +1,13 @@
 import SoundManager from '../managers/SoundManager.js';
 
 export class TipsModal extends Phaser.GameObjects.Container {
-    constructor(scene) {
+    constructor(scene, props = {}) {
         super(scene);
         scene.add.existing(this);
 
         this.scene = scene;
         this.setDepth(99999);
+        this.modalKey = props.modalKey || 'dicaModal';
 
         if (!SoundManager.game) {
             SoundManager.init(scene.game);
@@ -23,7 +24,7 @@ export class TipsModal extends Phaser.GameObjects.Container {
             .setOrigin(0, 0)
             .setInteractive();
 
-        this.modal = this.scene.add.image(sceneWidth / 2, sceneHeight / 2, 'dicaModal')
+        this.modal = this.scene.add.image(sceneWidth / 2, sceneHeight / 2, this.modalKey)
             .setOrigin(0.5);
 
         this.closeButton = this.scene.add.image(
